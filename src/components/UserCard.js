@@ -16,7 +16,7 @@ const UserCard = ({item:{firstName, lastName, id}}) => {
       onClick={() => navigate(`/${id}/${firstName} ${lastName}`)}
     >
       <Avatar
-        src={`https://avatars.dicebear.com/api/initials/${firstName} ${lastName}.svg`}
+        src={`https://avatars.dicebear.com/api/initials/${firstName[0]}${lastName[0]}.svg`}
         sx={{
           width: '32px', height: '32px'
         }}
