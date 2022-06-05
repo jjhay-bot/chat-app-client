@@ -5,25 +5,40 @@ import {
   Box,
   Toolbar,
   TextField,
+  Stack,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import MessageCard from "./MessageCard";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { GET_MSG } from "../graphql/queries";
+import SendIcon from "@mui/icons-material/Send";
+import { SEND_MSG } from "../graphql/mutations";
 
 const ChatScreen = () => {
   const { id, name } = useParams();
+  const [text, setText] = useState("");
+  const [messages, setMessages] = useState([]);
 
   const { data, loading, error } = useQuery(GET_MSG, {
     variables: {
       receiverId: +id,
     },
+    onCompleted(data) {
+      setMessages(data.messagesByUser);
+    },
   });
-  
 
-  data && console.log(data.messagesByUser);
-  data && console.log(id);
+  const [sendMessage] = useMutation(SEND_MSG, {
+    variables: {
+      receiverId: +id,
+    },
+    onCompleted(data) {
+      setMessages(prevMesssages => [...prevMesssages, data.createMessage]);
+    },
+  });
+
+  error && console.log(error.message);
 
   return (
     <Box flexGrow={1}>
@@ -58,7 +73,7 @@ const ChatScreen = () => {
         {loading ? (
           <Typography variant="h6">Loading...</Typography>
         ) : (
-          data.messagesByUser.map((msg,i) => (
+          messages.map((msg, i) => (
             <MessageCard
               key={i}
               text={msg.text}
@@ -68,18 +83,32 @@ const ChatScreen = () => {
           ))
         )}
       </Box>
-
-      <TextField
-        name=""
-        label=""
-        placeholder="Enter a message"
-        variant="standard"
-        fullWidth
-        multiline
-        rows={2}
-        sx={{ py: 1 }}
-        // onChange={}
-      />
+      <Stack direction="row">
+        <TextField
+          name=""
+          label=""
+          placeholder="Enter a message"
+          variant="standard"
+          fullWidth
+          multiline
+          rows={2}
+          sx={{ py: 1 }}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <SendIcon fontSize="large" 
+        onClick={
+          () => {
+            sendMessage({
+              variables:{
+                receiverId: +id,
+                text: text
+              }
+            })
+          }
+        }
+        />
+      </Stack>
     </Box>
   );
 };

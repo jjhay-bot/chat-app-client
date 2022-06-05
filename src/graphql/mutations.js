@@ -17,3 +17,15 @@ export const LOGIN_USER = gql`
     }
   }
 `;
+
+export const SEND_MSG = gql`
+  mutation CreateMessage($receiverId: Int!, $text: String!) {
+    createMessage(receiverId: $receiverId, text: $text) {
+      id
+      text
+      receiverId
+      senderId
+      createdAt
+    }
+  }
+`;
