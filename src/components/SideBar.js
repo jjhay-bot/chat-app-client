@@ -14,12 +14,6 @@ import { GET_ALL_USER } from "../graphql/queries";
 const SideBar = ({ setLoggedIn }) => {
   const { data, loading, error } = useQuery(GET_ALL_USER);
 
-  const users = [
-    { id: 1, firstName: "Mukesh", lastName: "last" },
-    { id: 2, firstName: "Suresh", lastName: "last" },
-    { id: 3, firstName: "Mohit", lastName: "last" },
-  ];
-
   if (loading) {
     return (
       <Box
@@ -30,7 +24,7 @@ const SideBar = ({ setLoggedIn }) => {
       >
         <Box textAlign="center">
           <CircularProgress />
-          <Typography variant="h6">Authenticating...</Typography>
+          <Typography variant="h6">Loading Chats...</Typography>
         </Box>
       </Box>
     );
@@ -43,7 +37,6 @@ const SideBar = ({ setLoggedIn }) => {
   if (error) {
     console.log(error.message);
   }
-
 
   return (
     <Box
@@ -68,7 +61,7 @@ const SideBar = ({ setLoggedIn }) => {
         </IconButton>
       </Stack>
       <Divider />
-      {users.map((item) => {
+      {data.users.map((item) => {
         return <UserCard key={item.id} item={item} />;
       })}
     </Box>
