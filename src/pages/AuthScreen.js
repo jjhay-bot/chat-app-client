@@ -5,13 +5,42 @@ import {
   Typography,
   Button,
   Card,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import { useState, useRef } from "react";
+import { useMutation } from "@apollo/client";
+import { SIGNUP_USER, LOGIN_USER } from "../graphql/mutations";
 
-const AuthScreen = () => {
+const AuthScreen = ({setLoggedIn}) => {
   const [formData, setFormData] = useState({});
   const [showLogin, setShowLogin] = useState(false);
-  const authForm = useRef(null)
+  const authForm = useRef(null);
+
+  const [signupUser, { data: signupData, loading: l1, error: e1 }] =
+    useMutation(SIGNUP_USER);
+
+  const [loginUser, { data: loginData, loading: l2, error: e2 }] =
+    useMutation(LOGIN_USER, {onCompleted(data){
+      localStorage.setItem("jwt", data.signinUser.token)
+      setLoggedIn(true)
+    }});
+
+  if (l1 || l2) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <Box textAlign="center">
+          <CircularProgress />
+          <Typography variant="h6">Authenticating...</Typography>
+        </Box>
+      </Box>
+    );
+  }
 
   const handleChange = (e) => {
     setFormData({
@@ -22,7 +51,20 @@ const AuthScreen = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+    if (showLogin) {
+      //signinuser
+      loginUser({
+        variables: {
+          userSignin: formData,
+        },
+      });
+    } else {
+      signupUser({
+        variables: {
+          userNew: formData,
+        },
+      });
+    }
   };
 
   return (
@@ -48,6 +90,14 @@ const AuthScreen = () => {
             width: "400px",
           }}
         >
+          {signupData && (
+            <Alert severity="success">
+              {signupData.signupUser.firstName} Signed Up
+            </Alert>
+          )}
+
+          {e1 && <Alert severity="error">{e1.message}</Alert>}
+          {e2 && <Alert severity="error">{e2.message}</Alert>}
           <Typography variant="h5" color="initial">
             Please {showLogin ? "Login" : "Signup"}
           </Typography>
@@ -59,12 +109,14 @@ const AuthScreen = () => {
                 label="First Name"
                 variant="standard"
                 onChange={handleChange}
+                required
               />
               <TextField
                 name="lastName"
                 label="last Name"
                 variant="standard"
                 onChange={handleChange}
+                required
               />
             </>
           )}
@@ -75,6 +127,7 @@ const AuthScreen = () => {
             autoComplete=""
             variant="standard"
             onChange={handleChange}
+            required
           />
           <TextField
             type="password"
@@ -82,15 +135,20 @@ const AuthScreen = () => {
             label="password"
             variant="standard"
             onChange={handleChange}
+            required
           />
 
-            <Typography  variant="subtitle1" onClick={() => {
-              setShowLogin(preValue=> !preValue)
-              setFormData({})
-              console.log(authForm.current.reset());
-            }}>
+          <Typography
+            variant="subtitle1"
+            textAlign="center"
+            onClick={() => {
+              setShowLogin((preValue) => !preValue);
+              setFormData({});
+              authForm.current.reset();
+            }}
+          >
             {showLogin ? "Signup" : "Login"}
-            </Typography>
+          </Typography>
 
           <Button variant="outlined" type="submit">
             {showLogin ? "Login" : "Signup"}
