@@ -19,7 +19,7 @@ const MessageCard = ({ text, date, direction }) => {
           backgroundColor="white"
           padding="5px"
         >
-          {date}
+          {new Date(date).toLocaleTimeString()}
         </Typography>
       </Box>
     </Box>

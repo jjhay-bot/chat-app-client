@@ -3,14 +3,27 @@ import {
   Typography,
   Avatar,
   Box,
-  Toolbar, TextField,
+  Toolbar,
+  TextField,
 } from "@mui/material";
 import React from "react";
 import { useParams } from "react-router-dom";
 import MessageCard from "./MessageCard";
+import { useQuery } from "@apollo/client";
+import { GET_MSG } from "../graphql/queries";
 
 const ChatScreen = () => {
   const { id, name } = useParams();
+
+  const { data, loading, error } = useQuery(GET_MSG, {
+    variables: {
+      receiverId: +id,
+    },
+  });
+  
+
+  data && console.log(data.messagesByUser);
+  data && console.log(id);
 
   return (
     <Box flexGrow={1}>
@@ -36,24 +49,24 @@ const ChatScreen = () => {
         </Toolbar>
       </AppBar>
 
-      <Box backgroundColor='#f5f5f5' height='77.5vh' padding='10px' sx={{overflowY:'auto'}}>
-      <MessageCard text='hi mukesh' date='1222' direction='end'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='start'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='end'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='end'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='start'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='end'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='end'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='start'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='end'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='end'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='start'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='end'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='end'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='start'/> 
-      <MessageCard text='hi mukesh' date='1222' direction='end'/> 
-
-
+      <Box
+        backgroundColor="#f5f5f5"
+        height="77.5vh"
+        padding="10px"
+        sx={{ overflowY: "auto" }}
+      >
+        {loading ? (
+          <Typography variant="h6">Loading...</Typography>
+        ) : (
+          data.messagesByUser.map((msg,i) => (
+            <MessageCard
+              key={i}
+              text={msg.text}
+              date={msg.createdAt}
+              direction={msg.receiverId === +id ? "end" : "start"}
+            />
+          ))
+        )}
       </Box>
 
       <TextField
@@ -64,12 +77,9 @@ const ChatScreen = () => {
         fullWidth
         multiline
         rows={2}
-        sx={{py:1}}
+        sx={{ py: 1 }}
         // onChange={}
-        
       />
-
-
     </Box>
   );
 };

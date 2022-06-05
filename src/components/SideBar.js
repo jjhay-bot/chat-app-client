@@ -16,22 +16,11 @@ const SideBar = ({ setLoggedIn }) => {
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-      >
-        <Box textAlign="center">
-          <CircularProgress />
-          <Typography variant="h6">Loading Chats...</Typography>
-        </Box>
-      </Box>
+      <Box textAlign="center">
+      <Typography variant="h6">Loading...</Typography>
+      <CircularProgress />
+    </Box>
     );
-  }
-
-  if (data) {
-    console.log(data);
   }
 
   if (error) {
@@ -50,7 +39,7 @@ const SideBar = ({ setLoggedIn }) => {
         alignItems="center"
         direction="row"
       >
-        <Typography variant="h6">Loading Chats...</Typography>
+        <Typography variant="h6">Chats</Typography>
         <IconButton
           onClick={() => {
             localStorage.removeItem("jwt");
